@@ -30,7 +30,7 @@ p {
 }
 @media (max-width: 991px) {
 .item9 .text {
-    visibility: none;
+    visibility: hidden;
 }
 }
 /* Medium Devices, Desktops */
