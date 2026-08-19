@@ -156,6 +156,10 @@ video {
     grid-row: span 1;
 }
 .item4 {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 2vh;
     grid-column: span 2;
     grid-row: span 1;
 max-width: 420px;
