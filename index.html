@@ -139,7 +139,7 @@
             that reinforce our way of caring for ourselves every day. you can see it as a longevity insurance: 
 			proactive protection that quietly compounds into resilience, energy, and peace of mind
             <br><br>
-            i am also available for corporate wellness projects. if that’s relevant for your organization, let’s talk.
+            i am also available for corporate wellness projects. if that’s relevant for your organization, <span id="email-link"></span> and let’s talk.
         </p>
     </div>
 
@@ -197,7 +197,7 @@ it’s becoming one of my favorite ways to start the day
             <br><br>
             share what you’ve been struggling with — i would love to start the conversation
             <br>
-            <strong>anjahwc@gmail.com</strong>
+            anjahwc@gmail.com
             <br><br>
             i can provide:
             <br><br>
@@ -233,6 +233,31 @@ it’s becoming one of my favorite ways to start the day
 <script src="libs/scrollto/jquery.scrollTo.min.js"></script>
 <script src="js/common.js"></script>
 <script src="libs/respond/respond.min.js"></script>
+<script>
+  (function () {
+    const user = "anjahwc";
+    const domain = "gmail.com";
+    const email = user + "@" + domain;
+    const container = document.getElementById("email-link");
+    if (!container) {
+      console.error("No #email-link found.");
+      return;
+    }
 
+    // For debugging: show raw values in the console
+    console.log("Email parts:", { user, domain, email });
+
+    const link = document.createElement("a");
+    link.href = "mailto:" + email;
+    link.textContent = "email me";
+    link.classList.add("contact-email");
+
+    container.appendChild(link);
+
+    // Optional: also show the email as text after the link
+    // container.insertAdjacentText("afterend", " (" + email + ")");
+  })();
+</script>
+	
 </body>
 </html>
