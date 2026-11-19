@@ -217,6 +217,10 @@ width: 100%;
 max-width: 100%;
 	overflow: hidden;
 }
+.canvas-wrapper canvas {
+    height: auto;
+	min-height: 300px;
+}
 /* NAVIGATION */
 /* Mobile navigation font fixes */
 
