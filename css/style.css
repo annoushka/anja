@@ -607,6 +607,25 @@ body {
 .forms a:hover {
     opacity: 0.7;
 }
+.form-embed {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.form-embed iframe {
+    display: block;
+    width: 100%;
+    min-height: 1200px;
+    height: 100%;
+    border: 0;
+}
+@media (max-width: 767px) {
+    .form-embed iframe {
+        min-height: 1600px;
+    }
+}
+
 
 /* Mobile footer improvements */
 @media (max-width: 767px) {
