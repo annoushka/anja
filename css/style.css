@@ -212,14 +212,15 @@ justify-content: center !important;
 margin-top: 60px;
 }
 .canvas-wrapper {
-    display: block;
 width: 100%;
 max-width: 100%;
+	aspect-ratio: 4 / 3;
 	overflow: hidden;
 }
 .canvas-wrapper canvas {
-    height: auto;
-	min-height: 300px;
+	display: block;
+    height: 100%;
+	width: 100%;
 }
 /* NAVIGATION */
 /* Mobile navigation font fixes */
