@@ -310,16 +310,20 @@
 function resizeCanvas() {
 const canvas = document.getElementById("myCanvas");
 const wrapper = canvas.parentElement;
+const ctx = canvas.getContext("2d");
 
-canvas.width = wrapper.clientWidth;
-canvas.height = wrapper.clientHeight;
+const width = wrapper.clientWidth;
+const height = wrapper.clientHeight;
 
-// redraw your canvas here
-drawCanvas();
+canvas.width = width;
+canvas.height = height;
+
+drawCanvas(width, height);
 }
 
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
+
 
   function createPaths() {
     paths = [];
