@@ -253,235 +253,227 @@
 
 <script>
 (function () {
-  const canvas = document.getElementById('bee');
-  if (!canvas) return;
+ const canvas = document.getElementById('bee');
+ if (!canvas) return;
 
-  const ctx = canvas.getContext('2d');
+ const ctx = canvas.getContext('2d');
+ if (!ctx) return;
 
-  const scale = window.devicePixelRatio || 1;
-  const width = canvas.clientWidth || 500;
-  const height = canvas.clientHeight || 500;
+ let cssWidth = 500;
+ let cssHeight = 500;
+ let centerX = 250;
+ let centerY = 250;
 
-  canvas.width = width * scale;
-  canvas.height = height * scale;
-  ctx.scale(scale, scale);
+ const rayCount = 36;
+ const pointsPerFrame = 1;
+ const delayMs = 35;
+ const restartDelayMs = 1200;
 
-  const centerX = width / 2;
-  const centerY = height / 2;
+ let paths = [];
+ let pathIndex = 0;
+ let pointIndex = 0;
+ let lastX = 0;
+ let lastY = 0;
+ let animationTimeout = null;
+ let hasStarted = false;
 
-  // Sun settings
-  const centerRadius = Math.min(width, height) * 0.105;
-  const innerRayRadius = Math.min(width, height) * 0.245;
-  const outerRayRadius = Math.min(width, height) * 0.405;
-  const rayCount = 36;
+ function createCircle(radius, wobble, points = 100) {
+ const path = [];
 
-  // Increase pointsPerFrame to draw faster.
-  // Increase delayMs to draw slower.
-  const pointsPerFrame = 1;
-  const delayMs = 35;
+ for (let i = 0; i <= points; i++) {
+ const angle = (i / points) * Math.PI * 2;
+ const variation = 1 + (Math.random() - 0.5) * wobble;
 
-  // Pause before the animation restarts, in milliseconds.
-  const restartDelayMs = 1200;
+ path.push({
+ x: centerX + Math.cos(angle) * radius * variation,
+ y: centerY + Math.sin(angle) * radius * variation
+ });
+ }
 
-  let paths = [];
-  let pathIndex = 0;
-  let pointIndex = 0;
-  let lastX = 0;
-  let lastY = 0;
-  let animationTimeout = null;
-  let hasStarted = false;
+ return path;
+ }
 
-  function createCircle(radius, wobble, points = 100) {
-    const path = [];
+ function createPaths() {
+ paths = [];
 
-    for (let i = 0; i <= points; i++) {
-      const angle = (i / points) * Math.PI * 2;
-      const variation = 1 + (Math.random() - 0.5) * wobble;
+ const centerRadius = Math.min(cssWidth, cssHeight) * 0.105;
+ const innerRayRadius = Math.min(cssWidth, cssHeight) * 0.245;
+ const outerRayRadius = Math.min(cssWidth, cssHeight) * 0.405;
 
-      path.push({
-        x: centerX + Math.cos(angle) * radius * variation,
-        y: centerY + Math.sin(angle) * radius * variation
-      });
-    }
+ paths.push(createCircle(centerRadius, 0.035));
+ paths.push(createCircle(centerRadius * 1.13, 0.045));
 
-    return path;
-  }
-	
-function resizeCanvas() {
-const canvas = document.getElementById("myCanvas");
-const wrapper = canvas.parentElement;
-const ctx = canvas.getContext("2d");
+ for (let i = 0; i < rayCount; i++) {
+ const angle =
+ (i / rayCount) * Math.PI * 2 +
+ (Math.random() - 0.5) * 0.035;
 
-const width = wrapper.clientWidth;
-const height = wrapper.clientHeight;
+ const innerVariation = 1 + (Math.random() - 0.5) * 0.08;
+ const outerVariation = 1 + (Math.random() - 0.5) * 0.16;
 
-canvas.width = width;
-canvas.height = height;
+ const innerRadius = innerRayRadius * innerVariation;
+ const outerRadius =
+ outerRayRadius * outerVariation +
+ (Math.random() - 0.5) * 15;
 
-drawCanvas(width, height);
-}
+ const startX = centerX + Math.cos(angle) * innerRadius;
+ const startY = centerY + Math.sin(angle) * innerRadius;
 
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
+ const endX = centerX + Math.cos(angle) * outerRadius;
+ const endY = centerY + Math.sin(angle) * outerRadius;
 
+ const bend = (Math.random() - 0.5) * 10;
+ const controlX =
+ centerX +
+ Math.cos(angle) * ((innerRadius + outerRadius) / 2) -
+ Math.sin(angle) * bend;
 
-  function createPaths() {
-    paths = [];
+ const controlY =
+ centerY +
+ Math.sin(angle) * ((innerRadius + outerRadius) / 2) +
+ Math.cos(angle) * bend;
 
-    // Double-ring center
-    paths.push(createCircle(centerRadius, 0.035));
-    paths.push(createCircle(centerRadius * 1.13, 0.045));
+ const ray = [];
 
-    // Hand-drawn rays
-    for (let i = 0; i < rayCount; i++) {
-      const angle =
-        (i / rayCount) * Math.PI * 2 +
-        (Math.random() - 0.5) * 0.035;
+ for (let step = 0; step <= 20; step++) {
+ const t = step / 20;
 
-      const innerVariation = 1 + (Math.random() - 0.5) * 0.08;
-      const outerVariation = 1 + (Math.random() - 0.5) * 0.16;
+ const x =
+ (1 - t) * (1 - t) * startX +
+ 2 * (1 - t) * t * controlX +
+ t * t * endX;
 
-      const innerRadius = innerRayRadius * innerVariation;
-      const outerRadius =
-        outerRayRadius * outerVariation +
-        (Math.random() - 0.5) * 15;
+ const y =
+ (1 - t) * (1 - t) * startY +
+ 2 * (1 - t) * t * controlY +
+ t * t * endY;
 
-      const startX = centerX + Math.cos(angle) * innerRadius;
-      const startY = centerY + Math.sin(angle) * innerRadius;
+ ray.push({ x, y });
+ }
 
-      const endX = centerX + Math.cos(angle) * outerRadius;
-      const endY = centerY + Math.sin(angle) * outerRadius;
+ paths.push(ray);
+ }
+ }
 
-      // Slight bend in each ray for an organic appearance
-      const bend = (Math.random() - 0.5) * 10;
-      const controlX =
-        centerX +
-        Math.cos(angle) * ((innerRadius + outerRadius) / 2) -
-        Math.sin(angle) * bend;
+ function resetAnimation() {
+ if (animationTimeout) {
+ clearTimeout(animationTimeout);
+ animationTimeout = null;
+ }
 
-      const controlY =
-        centerY +
-        Math.sin(angle) * ((innerRadius + outerRadius) / 2) +
-        Math.cos(angle) * bend;
+ pathIndex = 0;
+ pointIndex = 0;
+ lastX = 0;
+ lastY = 0;
 
-      const ray = [];
+ createPaths();
 
-      for (let step = 0; step <= 20; step++) {
-        const t = step / 20;
+ ctx.clearRect(0, 0, cssWidth, cssHeight);
+ }
 
-        const x =
-          (1 - t) * (1 - t) * startX +
-          2 * (1 - t) * t * controlX +
-          t * t * endX;
+ function drawNextPart() {
+ if (pathIndex >= paths.length) {
+ animationTimeout = setTimeout(() => {
+ resetAnimation();
+ drawNextPart();
+ }, restartDelayMs);
 
-        const y =
-          (1 - t) * (1 - t) * startY +
-          2 * (1 - t) * t * controlY +
-          t * t * endY;
+ return;
+ }
 
-        ray.push({ x, y });
-      }
+ const path = paths[pathIndex];
 
-      paths.push(ray);
-    }
-  }
+ if (pointIndex === 0) {
+ lastX = path[0].x;
+ lastY = path[0].y;
+ pointIndex = 1;
 
-// Drawing style
-  ctx.strokeStyle = '#F2A900';
-  ctx.lineWidth = 5;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
+ animationTimeout = setTimeout(() => {
+ animationTimeout = null;
+ requestAnimationFrame(drawNextPart);
+ }, delayMs);
 
-  function resetAnimation() {
-    if (animationTimeout) {
-      clearTimeout(animationTimeout);
-      animationTimeout = null;
-    }
+ return;
+ }
 
-    pathIndex = 0;
-    pointIndex = 0;
-    lastX = 0;
-    lastY = 0;
+ for (let i = 0; i < pointsPerFrame; i++) {
+ if (pointIndex >= path.length) {
+ pathIndex++;
+ pointIndex = 0;
+ break;
+ }
 
-    createPaths();
+ const point = path[pointIndex];
 
-    ctx.clearRect(0, 0, width, height);
-  }
+ ctx.beginPath();
+ ctx.moveTo(lastX, lastY);
+ ctx.lineTo(point.x, point.y);
+ ctx.stroke();
 
-  function drawNextPart() {
-    if (pathIndex >= paths.length) {
-      animationTimeout = setTimeout(() => {
-        resetAnimation();
-        drawNextPart();
-      }, restartDelayMs);
+ lastX = point.x;
+ lastY = point.y;
+ pointIndex++;
+ }
 
-      return;
-    }
+ animationTimeout = setTimeout(() => {
+ animationTimeout = null;
+ requestAnimationFrame(drawNextPart);
+ }, delayMs);
+ }
 
-    const path = paths[pathIndex];
+ function startWhenVisible() {
+ if (hasStarted) return;
+ hasStarted = true;
 
-    if (pointIndex === 0) {
-      lastX = path[0].x;
-      lastY = path[0].y;
-      pointIndex = 1;
+ resetAnimation();
+ drawNextPart();
+ }
 
-      animationTimeout = setTimeout(() => {
-        animationTimeout = null;
-        requestAnimationFrame(drawNextPart);
-      }, delayMs);
+ function resizeCanvas() {
+ const rect = canvas.getBoundingClientRect();
 
-      return;
-    }
+ cssWidth = Math.max(1, Math.round(rect.width));
+ cssHeight = Math.max(1, Math.round(rect.height));
 
-    for (let i = 0; i < pointsPerFrame; i++) {
-      if (pointIndex >= path.length) {
-        pathIndex++;
-        pointIndex = 0;
-        break;
-      }
+ const dpr = window.devicePixelRatio || 1;
 
-      const point = path[pointIndex];
+ canvas.width = Math.round(cssWidth * dpr);
+ canvas.height = Math.round(cssHeight * dpr);
 
-      ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
-      ctx.lineTo(point.x, point.y);
-      ctx.stroke();
+ ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      lastX = point.x;
-      lastY = point.y;
-      pointIndex++;
-    }
+ centerX = cssWidth / 2;
+ centerY = cssHeight / 2;
 
-    animationTimeout = setTimeout(() => {
-      animationTimeout = null;
-      requestAnimationFrame(drawNextPart);
-    }, delayMs);
-  }
+ resetAnimation();
+ }
 
-  function startWhenVisible() {
-    if (hasStarted) return;
-    hasStarted = true;
+ ctx.strokeStyle = '#F2A900';
+ ctx.lineWidth = 5;
+ ctx.lineCap = 'round';
+ ctx.lineJoin = 'round';
 
-    resetAnimation();
-    drawNextPart();
-  }
+ resizeCanvas();
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          startWhenVisible();
-        }
-      });
-    },
-    {
-      threshold: 0.2
-    }
-  );
+ const observer = new IntersectionObserver(
+ (entries) => {
+ entries.forEach((entry) => {
+ if (entry.isIntersecting) {
+ startWhenVisible();
+ }
+ });
+ },
+ {
+ threshold: 0.2
+ }
+ );
 
-  observer.observe(canvas);
+ observer.observe(canvas);
+
+ window.addEventListener('resize', resizeCanvas);
 })();
 </script>
+
 </div>
 </div>
 </div> <!-- / .container -->
