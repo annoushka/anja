@@ -211,7 +211,12 @@ max-width: 420px;
 justify-content: center !important;
 margin-top: 60px;
 }
-
+.canvas-wrapper {
+    display: block;
+width: 100%;
+max-width: 100%;
+	overflow: hidden;
+}
 /* NAVIGATION */
 /* Mobile navigation font fixes */
 
